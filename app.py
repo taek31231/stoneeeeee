@@ -5,10 +5,12 @@ from io import BytesIO
 import base64
 import json
 
-# ⚠️ API 설정
-# 이 키는 Streamlit 환경에서 자동으로 주입됩니다.
-API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"
-API_KEY = "" # 실제 API 호출 시에는 이 값이 런타임에 채워집니다.
+# 실제 운영 시에는 secrets.toml 또는 환경 변수를 사용해야 합니다.
+GEMINI_API_KEY = "AIzaSyCUVhECqNMDsoBZSyDXWrhAJN21PerZl_E"
+
+# API 설정
+# BASE_URL: Gemini API 기본 주소
+BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent"
 
 # --- 헬퍼 함수 ---
 
@@ -25,6 +27,15 @@ def classify_rock(base64_image_data):
     """
     Gemini API를 호출하여 이미지를 분석하고 암석을 분류합니다.
     """
+    # 1. API 키 로드 (하드코딩된 전역 변수 사용)
+    api_key = GEMINI_API_KEY
+    if not api_key:
+        st.error("🚨 오류: API 키가 설정되지 않았습니다.")
+        return None
+
+    # 2. URL 구성 (403 Forbidden 오류 해결: 키를 URL 쿼리 파라미터에 직접 삽입)
+    full_api_url = f"{BASE_URL}?key={api_key}"
+
     # 텍스트와 이미지 입력 모두를 처리하는 멀티모달 프롬프트
     prompt = """
     당신은 세계적인 지질학자입니다. 제공된 이미지의 암석을 분석하고, 
@@ -57,20 +68,19 @@ def classify_rock(base64_image_data):
         }
     }
 
-    # API 호출 (이 환경에서는 API_KEY가 자동으로 처리됩니다.)
+    # API 호출 
     with st.spinner("🌌 Gemini AI가 암석을 분석 중입니다..."):
         try:
-            # requests.post를 사용하여 API 호출
             response = requests.post(
-                API_URL, 
+                full_api_url,  # 키가 포함된 최종 URL 사용
                 headers={"Content-Type": "application/json"},
                 data=json.dumps(payload),
-                params={'key': API_KEY} # Streamlit 환경에서 실제 키가 여기에 주입됩니다.
             )
             response.raise_for_status()
             
-            # 응답 파싱
             result = response.json()
+            
+            # 응답 구조 확인 및 텍스트 추출
             generated_text = result['candidates'][0]['content']['parts'][0]['text']
             return generated_text
 
@@ -90,8 +100,9 @@ def classify_rock(base64_image_data):
 
 st.set_page_config(page_title="⛏️ AI 암석 분류기", layout="centered")
 st.title("⛏️ AI 암석 및 광물 분류기")
-st.markdown("사진을 업로드하면 Gemini AI가 전문 지질학자처럼 암석의 종류를 식별해 드립니다.")
+st.markdown("사진을 업로드하면 Gemini AI가 암석의 종류를 식별해 드립니다.")
 st.markdown("---")
+
 
 uploaded_file = st.file_uploader("📸 암석 사진을 업로드하세요", type=["jpg", "jpeg", "png"])
 
@@ -118,3 +129,4 @@ if uploaded_file is not None:
             # Markdown 형식으로 받은 결과를 그대로 출력
             st.markdown(classification_result)
             st.info("💡 **참고:** 이 결과는 AI가 이미지를 분석한 추정치이며, 실제 지질학적 분석을 대체할 수 없습니다.")
+```eof
