@@ -129,4 +129,3 @@ if uploaded_file is not None:
             # Markdown 형식으로 받은 결과를 그대로 출력
             st.markdown(classification_result)
             st.info("💡 **참고:** 이 결과는 AI가 이미지를 분석한 추정치이며, 실제 지질학적 분석을 대체할 수 없습니다.")
-```eof
