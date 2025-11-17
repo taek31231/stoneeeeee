@@ -38,13 +38,19 @@ def classify_rock(base64_image_data):
 
     # 텍스트와 이미지 입력 모두를 처리하는 멀티모달 프롬프트
     prompt = """
-    당신은 세계적인 지질학자입니다. 제공된 이미지의 암석을 분석하고, 
-    다음 네 가지 정보(암석 이름, 유형, 설명, 정확도 추정)를 한국어로만 제공해야 합니다.
-    응답은 아래의 Markdown 형식 틀을 엄격하게 지켜야 합니다.
+    Your task is to perform an expert geological analysis on the provided image of a rock or mineral specimen. 
+    You are acting as a world-renowned Petrologist and Mineralogist.
+
+    Follow these strict steps:
+    1. **Initial Assessment (Analyze):** Examine the image to identify key features like texture (e.g., phaneritic, aphanitic), crystal size and interlocking, presence of layers (foliation/bedding), and color index (felsic/mafic).
+    2. **Classification:** Based on the assessment, classify the specimen into its most probable rock type (Igneous, Sedimentary, or Metamorphic) and specific rock name.
+    3. **Confidence Scoring:** Assign a confidence score (accuracy estimate) based on the clarity of the image and the distinctiveness of the geological features shown.
+
+    **Output Constraint:** The final output must be **ONLY in Korean** and must strictly adhere to the following Markdown format. Do not include any introductory or concluding remarks outside this format.
 
     **암석 이름:** [분류된 암석의 이름]
     **암석 유형:** [화성암, 퇴적암, 또는 변성암]
-    **설명:** [암석의 주요 특징 2-3가지에 대한 간략한 설명]
+    **설명:** [암석의 주요 결정 구조, 색상, 형성 과정 등 구체적인 특징 3가지에 대한 전문적인 설명]
     **정확도 추정:** [당신의 전문 지식에 기반한 분류 정확도(%)]
     """
     
